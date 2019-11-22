@@ -16,3 +16,5 @@ Imports:
     scales,
     base,
     dplyr
+URL: https://github.com/FelixTheStudent/ggpower
+BugReports: https://github.com/FelixTheStudent/ggpower/issues
