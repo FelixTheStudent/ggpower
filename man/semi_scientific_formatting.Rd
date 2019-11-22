@@ -21,7 +21,13 @@ DETAILS
 \examples{
 \dontrun{
 if(interactive()){
- #EXAMPLE1
+# without, with mild and with strong transformation:
+ ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50)
+ ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/2))
+ ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/10))
+
+# last plot, but with nicer x-axis labels:
+ ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/2), labels = semi_scientific_formatting)
  }
 }
 }

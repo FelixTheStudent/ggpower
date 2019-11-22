@@ -31,7 +31,13 @@ NULL
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#'  #EXAMPLE1
+#' # without, with mild and with strong transformation:
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50)
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/2))
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/10))
+#'
+#'  # last plot, but with nicer x-axis labels:
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/2), labels = semi_scientific_formatting)
 #'  }
 #' }
 #' @seealso
@@ -68,7 +74,7 @@ power_trans <- function(power){
 power_breaks <- function(lims, power, n_breaks=5){
   # Return vector of breaks that span the lims range evenly _after_ power transformation:
   lims[1] <- base::max(0, lims[1]) # non-integer exponents are not defined for negative values
-  x <- base::seqseq(lims[1]^power, lims[2]^(power), length.out = n_breaks)^(1/power)
+  x <- base::seq(lims[1]^power, lims[2]^(power), length.out = n_breaks)^(1/power)
   # make human-readable by rounding to the closest integer power of 2. Smallest
   # and largest ticks are not strictly rounded - instead they are moved within
   # the range of values, since ggplot would not display them otherwise:
@@ -89,7 +95,13 @@ power_breaks <- function(lims, power, n_breaks=5){
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#'  #EXAMPLE1
+#' # without, with mild and with strong transformation:
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50)
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/2))
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/10))
+#'
+#' # last plot, but with nicer x-axis labels:
+#'  ggplot(data=tibble(x=rgamma(1000, c(.5, 5, 50))), aes(x))+geom_histogram(bins=50) + scale_x_continuous(trans=power_trans(1/2), labels = semi_scientific_formatting)
 #'  }
 #' }
 #' @seealso
