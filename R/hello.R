@@ -11,7 +11,7 @@
 #' foo, bar and baz.
 #'
 #' @section scale_color_sqrt:
-#' You can add this directly to a ggplot2 command.
+#' You can add scale_color_sqrt directly to a ggplot2 command.
 #' @section Useful functions:
 #' power_trans, power_breaks and semi_scientific_formatting can be useful in
 #' many scenarios.
@@ -144,3 +144,38 @@ scale_color_sqrt <- function(...){ggplot2::scale_color_gradientn(
   trans = ggpower::power_trans(1/2),
   labels = ggpower::semi_scientific_formatting,
   ...)}
+
+
+#' @title Power transformations for ggplot2's axis.
+#' @description FUNCTION_DESCRIPTION
+#' @param power A value with \code{1/n}, where \code{n} must be an integer number. Default: 1/2
+#' @param ... Other parameters passed to \code{\link[ggplot2]{scale_x_continuous}}.
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  p <- tibble(a=rgamma(1000, shape = c(.1,3, 16), rate=1)) %>% ggplot(aes(a))+
+#'  geom_histogram(bins=50)
+#'  p + scale_x_sqrt()      #  no ticks below 10
+#'  p + scale_x_power(1/2)  #  reasonable ticks (powers of two with human-readable rounding)
+#'  p + scale_x_power(1/4)  #  other powers than .5 are possible
+#'  }
+#' }
+#' @seealso
+#'  \code{\link[ggplot2]{scale_continuous}}
+#'  \code{\link[ggpower]{power_trans}},\code{\link[ggpower]{semi_scientific_formatting}}
+#' @export
+#' @describeIn scale_x_power same for y-axis.
+#' @importFrom ggplot2 scale_x_continuous
+scale_x_power <- function(power=1/2, ...){ggplot2::scale_x_continuous(
+  trans = ggpower::power_trans(power),
+  labels = ggpower::semi_scientific_formatting,
+  ...)}
+
+
+#' @describeIn scale_x_power same for y-axis.
+scale_y_power <- function(power=1/2, ...){ggplot2::scale_y_continuous(
+  trans = ggpower::power_trans(power),
+  labels = ggpower::semi_scientific_formatting,
+  ...)}
+

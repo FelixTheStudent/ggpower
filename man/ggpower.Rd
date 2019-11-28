@@ -11,7 +11,7 @@ foo, bar and baz.
 }
 \section{scale_color_sqrt}{
 
-You can add this directly to a ggplot2 command.
+You can add scale_color_sqrt directly to a ggplot2 command.
 }
 
 \section{Useful functions}{
