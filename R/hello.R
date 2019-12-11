@@ -54,6 +54,15 @@ power_trans <- function(power){
     inverse = function(x) x^(1/power),
     breaks = function(lims, p) power_breaks(lims, p=power) )
 }
+# Notes on coord_trans:
+#   power_trans is designed to work with scale_x_continuous(trans=power_trans(1/2)).
+#   You can do something like coord_trans(x=power_trans(1/5)) as well, but this
+#   has two currently unsolved problems:
+#   1. coord_trans does not use the breaks function, so you get linear breaks
+#   2. for histograms this will certainly throw an error, because the first bin
+#      (on the very left) sits at 0, so the x-value of the bin's left border is
+#      a negative number, which throws an error.
+#      You could fix this with pmax(x, 0) in the trans/inverse functions above.
 
 
 #' @title FUNCTION_TITLE
