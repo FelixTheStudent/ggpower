@@ -80,7 +80,7 @@ power_trans <- function(power){
 #' }
 #' @rdname power_breaks
 #' @export
-power_breaks <- function(lims, power, n_breaks=5){
+power_breaks <- function(lims, power, n_breaks=100){
   # Return vector of breaks that span the lims range evenly _after_ power transformation:
   lims[1] <- base::max(0, lims[1]) # non-integer exponents are not defined for negative values
   x <- base::seq(lims[1]^power, lims[2]^(power), length.out = n_breaks)^(1/power)
