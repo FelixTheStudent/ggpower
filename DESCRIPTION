@@ -18,3 +18,7 @@ Imports:
     dplyr
 URL: https://github.com/FelixTheStudent/ggpower
 BugReports: https://github.com/FelixTheStudent/ggpower/issues
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

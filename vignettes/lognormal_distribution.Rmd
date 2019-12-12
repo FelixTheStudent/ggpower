@@ -1,0 +1,121 @@
+---
+title: "lognormal_distribution"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{lognormal_distribution}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggplot2)
+library(ggpower)
+library(scales)
+# library(tidyverse)
+library(cowplot)
+```
+
+The log-normal distribution plays an important role in biology (or anywhere) due
+to the Central Limith Theorem: if many random effects are added together, the 
+result converges to a normal distribution, if they are **multiplied** it converges
+to a log-normal distribution.
+
+# The log of a normal
+If x is log-normally distributed, log(x) is normal:
+```{r}
+x <- rlnorm(100000, meanlog = 2, sdlog = 1.5)
+hist(log(x), 100, freq = F)
+points(seq(-4,8, length.out = 50), dnorm(seq(-4, 8, length.out = 50), mean = 2, sd = 1.5),
+       type="l")
+```
+
+# The meanlog-argument
+
+Docu says that *meanlog* and *sdlog* are the mean and standard deviation
+of the distribution on the log scale, and here is what that means:
+```{r}
+x <- rlnorm(100000, meanlog = 2, sdlog = 1.5)
+c(
+  mean_x_logged =log( mean(x) ), # NOT 2, but instead exp( meanlog + sdlog^2/2 ) = 3.125
+  median_x = median(x),                   # exp(2) = 7.38
+ # trivial: once you log-transform x, you end up with a normal with the expected behaviour:
+  mean_logx= mean(   log(x) ),  # 2
+  sd_logx  = sd( log(x) )  # 1.5 
+  )    
+
+
+```
+
+So the *meanlog* argument has two intuitions for a log-normal distributed x: 
+  
+  * *median*$(x) = e^{meanlog}$
+  * *mean*$(log(x)) = meanlog$
+
+Put differentlz, *meanlog* is the mean of the variable's natural logarithm,
+not the expectation of X itself. *meanlog* is X's logged median value.
+
+
+# Log-Transformation: coord_trans makes histogram and pdf fit
+**tl;dr** (too long, didn't read):
+
+  * *scale_x_continuous(trans="log")* does not make histogram and probability
+    density function (pdf) fit together, *coord_trans(trans="log")* does this
+  * *coord_trans* requires breaks that start above zero to avoid errors
+
+
+Log-transforming histograms is tricky because the left boundary of the
+left-most bin can be a negative number, which causes errors with *coord_trans*
+(while scale_x_continuous is fine).
+One could use *trans_new* to modify *log_trans*, but I found it more useful
+to use *geom_histogram*'s **breaks** argument to define the bin borders, starting
+from a small positive and non-zero number. While we are at it, we can make those
+breaks exponentially-spaced, as linear spacing leads to very broad left bars,
+masking information.
+
+```{r}
+# generate data from two log-normal distributions
+dat <- data.frame(class=c("a","b"),
+                  obs = rlnorm(1000, meanlog = c(0, 2), sdlog = c(.5, .5)))
+
+# exponentially spaced and avoiding zero:
+xseq <- pmax(1e-5, exp(seq(log(.9*min(dat$obs)), log(60), length.out = 100)))
+p <- ggplot() +
+  geom_histogram(data=dat, aes(obs, stat(density)), breaks = xseq)+
+  geom_line(aes(xseq, .5*dlnorm(xseq, 0, .5))) +geom_line(aes(xseq, .5*dlnorm(xseq, 2, .5)))
+plot_grid(p,
+          p+scale_x_continuous(trans = "log"),
+          p+coord_trans(x="log"), ncol=3 )
+```
+
+Now with nicer breaks:
+```{r}
+p+coord_trans(x="log") + scale_x_continuous(breaks = function(lims) power_breaks(lims, .5, 100), labels = semi_scientific_formatting)
+```
+
+
+Let's think again about the distribution mean and the meanlog argument:
+```{r}
+lnorm_stats <- c(mode   = exp(2 - .5*.5),  # see e.g. wikipedia
+                 median = exp(2),
+                 mean   = exp(2+.5*.5/2),
+                 mode   = exp(0 - .5*.5), 
+                 median = exp(0),
+                 mean   = exp(0+.5*.5/2)
+                 )
+p+coord_trans(x="log") + scale_x_continuous(breaks = function(lims) power_breaks(lims, .5, 100), labels = semi_scientific_formatting) +
+  geom_vline(aes(xintercept = lnorm_stats,
+                 color = names(lnorm_stats)), linetype = "dashed")
+```
+
+On the log-scale, x looks like a normal with mean meanlog-sdlog^2.  
+
+
+
+
