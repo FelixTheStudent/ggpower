@@ -22,7 +22,8 @@ library(scales)
 library(cowplot)
 ```
 
-The log-normal distribution plays an important role in biology (or anywhere) due
+The log-normal distribution plays an important role in biology
+(and everywhere else: finances, engineering, etc.) due
 to the Central Limith Theorem: if many random effects are added together, the 
 result converges to a normal distribution, if they are **multiplied** it converges
 to a log-normal distribution.
