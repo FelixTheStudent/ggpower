@@ -1,0 +1,111 @@
+---
+title: "Histograms"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Histograms}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggpower)
+library(scales)  # for trans_new
+library(tidyverse)
+library(cowplot)
+```
+
+
+Histograms and axis-transformations are a non-trivial combination,
+perhaps because people are not aware what histograms are, or because
+of the subtle difference between ggplot2's *scale_x_log10* and *coord_trans*.
+
+# Bar height != number of observations
+
+I used to think so too, but the **height** of each histogram bar does NOT indicate the number
+of observations in that bin. It is the bar's **area** that indicates that number.
+This has a beautiful consequence: the bar height is not an absolute number, but
+an estimate of density in the bin - histograms thus show estimates of the 
+probability density irrespective of binwidth.
+
+
+# Why coord_trans is better than scale_x_continuous
+
+
+**tl;dr** (too long, didn't read):
+
+  * *scale_x_continuous(trans="log")* does not make histogram and probability
+    density function (pdf) fit together, *coord_trans(trans="log")* does this
+  * *coord_trans* requires breaks that start above zero (to avoid errors) and
+  are exponentially spaced, not linearly (makes bars equal widths)
+
+
+It is not uncommon to have the histogram of some variable x and the (allegedly) underlying
+theoretical distribution in one plot. On the linear scale, this is done easily
+by combining *geom_histogram* and *geom_line*. Note how the code creating
+*xseq* seems a bit complicated and for geom_line we could use a linear sequence
+as well. For geom_histogram, however, using exponential, non-zero
+breaks in the histogram is required for using *coord_trans(trans="log")*, 
+so we do it already here.
+
+```{r}
+# generate data from two log-normal distributions
+dat <- data.frame(class=c("a","b"),
+                  obs = rlnorm(1000, meanlog = c(0, 2), sdlog = c(.5, .5)))
+# xseq: exponentially spaced and avoiding zero:
+xseq <- pmax(1e-5, exp(seq(log(.9*min(dat$obs)), log(1.1*max(dat$obs)), length.out = 100)))
+# empirical histogram and theoretical density in same plot:
+p_linear <- ggplot() +
+  geom_histogram(data=dat, aes(obs, stat(density)), breaks = xseq)+
+  geom_line(aes(xseq, .5*dlnorm(xseq, 0, .5))) + # half of dat is from this distribution
+  geom_line(aes(xseq, .5*dlnorm(xseq, 2, .5)))   #  other half from herep
+p
+```
+
+We see two log-normal distributions, and it would make sense to display them
+on the log-scale:
+```{r}
+plot_grid(p + ggtitle("linear"),
+          p+scale_x_continuous(trans = "log")+ggtitle("scale_x_continuous"),
+          p+coord_trans(x="log")+ggtitle("coord_trans"), ncol=3 )
+```
+
+Evidently, log-transforming with scale_x_log10 leads to discrepancies between
+the histogram (empirical density) and the pdf (theoretical density). 
+The help of *coord_trans* tells us in the Examples the reason:
+scale_x_* transform BEFORE statistics and coord_trans after. In our example,
+this means that scale_x creates a histogram of log(x), which has a different
+density function than x. Coord_trans, on the other hand, does what we want because
+it first computes the histogram and than transforms the coordinate system.
+
+## Note on exponentially spaced, non-zero *breaks*
+
+We created *xseq* above somewhat complicated so that coord_trans works and 
+here is the reason.
+
+Log-transforming histograms is tricky because the left boundary of the
+left-most bin can be a negative number, which causes errors with *coord_trans*
+(while scale_x_continuous is fine).
+One could use *trans_new* to modify *log_trans* (e.g. replacing 0s with a small 
+non-zero number), but I found it more useful
+to use *geom_histogram*'s **breaks** argument to define the bin borders, starting
+from a small positive and non-zero number. While we are at it, we can make those
+breaks exponentially-spaced, as linear spacing leads to very broad left bars,
+masking information. I do this above with *xseq*, which is then passed to 
+geom_histogram as *breaks*.
+
+
+# Using ggpower makes it easy
+
+Let's do the plot from above again, but this time with nicer breaks:
+```{r}
+p+coord_trans(x="log") + scale_x_continuous(breaks = function(lims) power_breaks(lims, .5, 100), labels = semi_scientific_formatting)
+```
+
+
