@@ -61,7 +61,7 @@ dat <- data.frame(class=c("a","b"),
 # xseq: exponentially spaced and avoiding zero:
 xseq <- pmax(1e-5, exp(seq(log(.9*min(dat$obs)), log(1.1*max(dat$obs)), length.out = 100)))
 # empirical histogram and theoretical density in same plot:
-p_linear <- ggplot() +
+p <- ggplot() +
   geom_histogram(data=dat, aes(obs, stat(density)), breaks = xseq)+
   geom_line(aes(xseq, .5*dlnorm(xseq, 0, .5))) + # half of dat is from this distribution
   geom_line(aes(xseq, .5*dlnorm(xseq, 2, .5)))   #  other half from herep
@@ -103,9 +103,11 @@ geom_histogram as *breaks*.
 
 # Using ggpower makes it easy
 
-Let's do the plot from above again, but this time with nicer breaks:
+Let's do the plot from above again, but this time with nicer breaks.
+We will also sqrt-transform the y-axis to make differences in densities
+less pronounced:
 ```{r}
-p+coord_trans(x="log") + scale_x_continuous(breaks = function(lims) power_breaks(lims, .5, 100), labels = semi_scientific_formatting)
+p+coord_trans(x="log", y = "sqrt") + scale_x_continuous(breaks = function(lims) power_breaks(lims, .5, 100), labels = semi_scientific_formatting)
 ```
 
 
