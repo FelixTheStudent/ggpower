@@ -23,6 +23,29 @@ NULL
 
 
 
+#' @title Log-spaced sequence
+#' @description Generates logarithmically spaced sequence covering the
+#' entire range of \code{x} (plus/minus ten percent) and avoiding
+#' numbers smaller or equal to zero.
+#' @param x numeric vector
+#' @param length PARAM_DESCRIPTION, Default: 100
+#' @param abs_min PARAM_DESCRIPTION, Default: 1e-05
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @rdname logseq
+#' @export
+logseq <- function(x, length = 100, abs_min=1e-5){
+  # exponentially spaces sequence covering the range of x (+/- ten percent)
+  pmax(abs_min, exp(seq(log(.9*min(x)), log(1.1*max(x)), length.out = length)))
+}
+
+
 #' @title FUNCTION_TITLE
 #' @description FUNCTION_DESCRIPTION
 #' @param power PARAM_DESCRIPTION
