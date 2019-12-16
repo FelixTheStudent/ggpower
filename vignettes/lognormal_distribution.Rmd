@@ -9,6 +9,7 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  fig.width = 8,
   collapse = TRUE,
   comment = "#>"
 )
@@ -96,7 +97,7 @@ normal distribution with mean $meanlog$.
 
 # Histogram of two log-normals
 
-Currently, this visualization is the one I find the most useful:
+Currently, this visualization is the one I find the most useful (see `lhist` function):
 
   * x-axis is log-transformed (coord_trans, !not! scale_x)
   * y-axis is sqrt-transformed, otherwise you don't see the second distribution
