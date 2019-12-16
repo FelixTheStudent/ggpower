@@ -94,30 +94,26 @@ normal distribution with mean $meanlog$.
 
 
 
+# Histogram of two log-normals
 
+Currently, this visualization is the one I find the most useful:
 
-## Summary
-
-
-So the *meanlog* argument has two intuitions for a log-normal distributed x: 
+  * x-axis is log-transformed (coord_trans, !not! scale_x)
+  * y-axis is sqrt-transformed, otherwise you don't see the second distribution
+  as the bins become wider, so high values get extremely low densities
+  * both multiplied with .5, because they make up half the data
   
-  * *median*$(x) = e^{meanlog}$
-  * *mean*$(log(x)) = meanlog$
-
-
+  
 ```{r}
-x <- rlnorm(100000, meanlog = 2, sdlog = 1.5)
-c(
-  mean_x_logged =log( mean(x) ), # NOT 2, but instead exp( meanlog + sdlog^2/2 ) = 3.125
-  median_x = median(x),          # exp(2) = 7.38
- # once you log-transform x, things are easy
-  mean_logx= mean(   log(x) ),  # meanlog, i.e. 2
-  sd_logx  = sd( log(x) )       # sdlog, i.e. 1.5 
-  )    
+x <- rlnorm(100000, meanlog = c(-6,.4), sdlog = 1)
+xseq <- pmax(1e-5, exp(seq(log(.9*min(x)), log(1.1*max(x)), length.out = 100)))
 
+ggplot()+
+  geom_histogram(data=data.frame(x=x), aes(x, stat(density)), breaks=xseq) +
+  geom_line(aes(xseq, .5*dlnorm(xseq, -6, 1)), color="blue") +
+  geom_line(aes(xseq, .5*dlnorm(xseq, .4, 1)), color="red") +
+  coord_trans(x="log", y="sqrt")
 
 ```
-
-
 
 
