@@ -4,7 +4,7 @@
 \alias{power_breaks}
 \title{FUNCTION_TITLE}
 \usage{
-power_breaks(lims, power, n_breaks = 5)
+power_breaks(lims, power, n_breaks = 100)
 }
 \arguments{
 \item{lims}{PARAM_DESCRIPTION}
