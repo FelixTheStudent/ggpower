@@ -102,13 +102,54 @@ masking information. I do this above with *xseq*, which is then passed to
 geom_histogram as *breaks*.
 
 
-# Using ggpower makes it easy
+# Using lhist makes it easy
 
 Let's do the plot from above again, but this time with nicer breaks.
-We will also sqrt-transform the y-axis to make differences in densities
-less pronounced:
+We will also sqrt-transform the y-axis to visualize both distributions
+in spite of their drastic differences in
+maximum density:
 ```{r}
 p+coord_trans(x="log", y = "sqrt") + scale_x_continuous(breaks = function(lims) power_breaks(lims, .5, 100), labels = semi_scientific_formatting)
 ```
 
+For quick plotting, there's the wrapper function *lhist*: 
+
+```{r}
+dat <- data.frame(class=c("a","b"),
+                  obs = rlnorm(10000, meanlog = c(0, 2), sdlog = c(.5, .5)) )
+
+lhist(dat$obs) + 
+  geom_line(aes(dat$obs, .5*dlnorm(dat$obs, 0, .5))) +
+  geom_line(aes(dat$obs, .5*dlnorm(dat$obs, 2, .5))) +
+  geom_line(aes(dat$obs, .5*dlnorm(dat$obs, 2, .5) + .5*dlnorm(dat$obs, 0, .5)),
+            linetype = "dashed", color = "red")
+```
+
+
+
+
+
+# Using scale_x_log10 and geom_density
+
+It is hacky, but if you replace geom_line with geom_density you can
+use scale_x_log10 after all:
+
+```{r}
+dat <- data.frame(class=c("a","b"),
+                  obs = rlnorm(10000, meanlog = c(0, 2), sdlog = c(.5, .5)),
+                  model=rlnorm(10000, meanlog = c(0, 2), sdlog = c(.5, .5)), 
+                  modelA=rlnorm(10000, meanlog = 0, sdlog = c(.5, .5)), 
+                  modelB=rlnorm(10000, meanlog = 2, sdlog = c(.5, .5)) 
+                  )
+
+ggplot(data = dat)+
+  geom_histogram(aes(obs, stat(density)), bins=100) + 
+  geom_density(aes(model), color = "red") +
+  geom_density(aes(modelA, .5*stat(density))) +
+  geom_density(aes(modelB, .5*stat(density))) +
+  scale_x_log10() 
+```
+This is not perfect yet: note how the red line is supposed to be the sum
+of the two black lines and clearly isn't. Probably because of the density
+estimation being off.
 
