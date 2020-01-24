@@ -118,3 +118,38 @@ ggplot()+
 ```
 
 
+
+
+
+
+
+# MLE estimation
+
+Wikipedia gives rather complicated and confusing estimators.
+I find the much simpler formulas:
+
+  * meanlog = mean(log(x))
+  * sdlog = mean(x-meanlog^2) 
+  
+In the following master thesis:
+
+
+  * Parameter Estimation for the Lognormal Distribution
+  * Brenda Faith Ginos
+  * 2009
+  * https://scholarsarchive.byu.edu/cgi/viewcontent.cgi?article=2927&context=etd
+
+With experiments I find that this works pretty well, as long as sdlog is > .7.
+Not sure why, that's just what I observe.
+```{r}
+x <- rlnorm(1000, meanlog = 1.2, sdlog = .7)
+xseq <- pmax(1e-5, exp(seq(log(.9*min(x)), log(1.1*max(x)), length.out = 100)))
+
+m_estim <- mean(log(x))
+s_estim <- mean((log(x)-m_estim)^2)
+ggplot()+
+  geom_histogram(data=data.frame(x=x), aes(x, stat(density)), breaks=xseq) +
+  geom_line(aes(xseq, dlnorm(xseq, m_estim, s_estim)), color="red") +
+  coord_trans(x="log", y="sqrt")
+```
+
