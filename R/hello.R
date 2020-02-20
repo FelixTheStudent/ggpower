@@ -211,15 +211,25 @@ semi_scientific_formatting <- function(x) {
 #' @seealso
 #'  \code{\link[ggplot2]{scale_colour_gradient}}
 #'  \code{\link[rje]{cubeHelix}}
+#'  \code{\link[ggpower]{power_breaks}}
+#'  \code{\link[ggpower]{semi_scientific_formatting}}
 #' @rdname scale_color_sqrt
 #' @export
 #' @importFrom ggplot2 scale_color_gradientn
 #' @importFrom rje cubeHelix
-scale_color_sqrt <- function(...){ggplot2::scale_color_gradientn(
-  colours = rev(rje::cubeHelix(100))[5:100],
-  trans = ggpower::power_trans(1/2),
-  labels = ggpower::semi_scientific_formatting,
-  ...)}
+scale_color_sqrt <- function(n_breaks=5, ...){
+  scale_color_gradientn(
+    colours = rev(rje::cubeHelix(100))[5:100],
+    trans = scales::trans_new(
+      name = "tmp",
+      trans = function(x)   x^(.5),
+      inverse = function(x) x^(1/.5),
+      breaks = function(lims) power_breaks(lims, p=.5, n_breaks=n_breaks) ),
+    labels = ggpower::semi_scientific_formatting,
+    ...)
+}
+
+
 
 
 #' @title Power transformations for ggplot2's axis.
