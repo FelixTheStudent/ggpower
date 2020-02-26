@@ -50,17 +50,18 @@ logseq <- function(x, length = 100, abs_min=1e-5){
 #' @description Useful e.g. for log-normal distributions, etc.. Wraps
 #' ggplot+geom_histogram with all the things I usually get wrong (see details)
 #' Type `lhist` to see code for copy-pasting.
-#' @param x PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
+#' @param x Numeric vector
+#' @return A ggplot-object.
 #' @details
 #' Currently, this visualization is the one I find the most useful:
-#' * x-axis is log-transformed (coord_trans, !not! scale_x - otherwise, adding
-#' theoretical distributions does not work)
-#' * log-spaced bins, otherwise coord_trans throws error and/or bin widths look
+#' * x-axis is log10-transformed (coord_trans, !not! scale_x - otherwise, adding
+#' theoretical probability density distributions does not work)
+#' * log10-spaced bins, otherwise coord_trans throws error and/or bin widths look
 #' extremely uneven
 #' * y-axis is sqrt-transformed, otherwise you don't see higher values so well
 #'   (play around with the example below and you'll see)
-#' * add theoretical distributions with
+#' * add x-labels with \code{+xlab("var_name")} and
+#' theoretical distributions with
 #' \code{geom_line(aes(logseq(x), dlnorm(x, meanlog, sdlog)))}
 #' @md
 #' @examples
@@ -69,7 +70,11 @@ logseq <- function(x, length = 100, abs_min=1e-5){
 #'  #EXAMPLE1
 #'  x <- rlnorm(100000, meanlog = c(-6,.4), sdlog = 1)
 #'  xseq <- pmax(1e-5, exp(seq(log(.9*min(x)), log(1.1*max(x)), length.out = 100)))
-#'
+#'  # with lhist function:
+#'  lhist(x)+
+#'    geom_line(aes(xseq, .5*dlnorm(xseq, -6, 1)), color="blue") +
+#'    geom_line(aes(xseq, .5*dlnorm(xseq, .4, 1)), color="red")
+#'  # without lhist function (slightly more typing):
 #'  ggplot()+
 #'    geom_histogram(data=data.frame(x=x), aes(x, stat(density)), breaks=xseq) +
 #'    geom_line(aes(xseq, .5*dlnorm(xseq, -6, 1)), color="blue") +
@@ -82,10 +87,10 @@ logseq <- function(x, length = 100, abs_min=1e-5){
 #' @export
 lhist <- function(x) {
   p <- ggplot()+
-  geom_histogram(data=data.frame(x=x), aes(x, stat(density)), breaks=logseq(x)) +
-  coord_trans(x="log", y="sqrt") +
-  scale_x_continuous(breaks = function(lims) power_breaks(lims, 1/2),
-                     labels = semi_scientific_formatting)
+  geom_histogram(data=data.frame(x=x), aes(x, stat(density)), breaks=ggpower::logseq(x)) +
+  coord_trans(x="log10", y="sqrt") +
+  scale_x_continuous(breaks = scales::log_breaks(10),
+                     labels = ggpower::semi_scientific_formatting)
   return(p)
 }
 

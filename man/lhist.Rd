@@ -7,10 +7,10 @@
 lhist(x)
 }
 \arguments{
-\item{x}{PARAM_DESCRIPTION}
+\item{x}{Numeric vector}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot-object.
 }
 \description{
 Useful e.g. for log-normal distributions, etc.. Wraps
@@ -20,13 +20,14 @@ Type \code{lhist} to see code for copy-pasting.
 \details{
 Currently, this visualization is the one I find the most useful:
 \itemize{
-\item x-axis is log-transformed (coord_trans, !not! scale_x - otherwise, adding
-theoretical distributions does not work)
-\item log-spaced bins, otherwise coord_trans throws error and/or bin widths look
+\item x-axis is log10-transformed (coord_trans, !not! scale_x - otherwise, adding
+theoretical probability density distributions does not work)
+\item log10-spaced bins, otherwise coord_trans throws error and/or bin widths look
 extremely uneven
 \item y-axis is sqrt-transformed, otherwise you don't see higher values so well
 (play around with the example below and you'll see)
-\item add theoretical distributions with
+\item add x-labels with \code{+xlab("var_name")} and
+theoretical distributions with
 \code{geom_line(aes(logseq(x), dlnorm(x, meanlog, sdlog)))}
 }
 }
@@ -36,7 +37,11 @@ if(interactive()){
  #EXAMPLE1
  x <- rlnorm(100000, meanlog = c(-6,.4), sdlog = 1)
  xseq <- pmax(1e-5, exp(seq(log(.9*min(x)), log(1.1*max(x)), length.out = 100)))
-
+ # with lhist function:
+ lhist(x)+
+   geom_line(aes(xseq, .5*dlnorm(xseq, -6, 1)), color="blue") +
+   geom_line(aes(xseq, .5*dlnorm(xseq, .4, 1)), color="red")
+ # without lhist function (slightly more typing):
  ggplot()+
    geom_histogram(data=data.frame(x=x), aes(x, stat(density)), breaks=xseq) +
    geom_line(aes(xseq, .5*dlnorm(xseq, -6, 1)), color="blue") +
