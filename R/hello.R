@@ -159,7 +159,7 @@ power_breaks <- function(lims, power, n_breaks=100){
     x == base::min(x) ~ 2^(base::ceiling(base::log2(x))),
     TRUE ~ (2^(base::round(base::log2(x))))
   )
-  return(x)
+  return(unique(x))
 }
 
 
