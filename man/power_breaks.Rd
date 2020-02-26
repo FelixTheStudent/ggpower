@@ -2,30 +2,44 @@
 % Please edit documentation in R/hello.R
 \name{power_breaks}
 \alias{power_breaks}
-\title{FUNCTION_TITLE}
+\title{Axis Breaks for power transformations}
 \usage{
-power_breaks(lims, power, n_breaks = 100)
+power_breaks(lims, power, n_breaks = NULL)
 }
 \arguments{
-\item{lims}{PARAM_DESCRIPTION}
+\item{lims}{The range for which breaks should be produced.}
 
 \item{power}{PARAM_DESCRIPTION}
 
-\item{n_breaks}{PARAM_DESCRIPTION, Default: 5}
+\item{n_breaks}{deprecated, does not influence the result. Stop using altogether.}
 }
 \value{
 OUTPUT_DESCRIPTION
 }
 \description{
-FUNCTION_DESCRIPTION
+Return vector of breaks that span the lims range
+evenly _after_ transformation
 }
 \details{
-DETAILS
+The breaks will be numbers that are powers of 2.
+The base of 2 was chosen for three reasons.
+Firstly, the resulting breaks are sufficiently dense (example: in the
+\code{[1,100]}-interval, \code{2^x} produces 2, 4, 8, 16, 32 and 64,
+while \code{10^x} only produces 1, 10 and 100, which is often rather sparse).
+Secondly, for x>1 the powers of 2 are all integers (in contrast to 1.2^x, etc.).
+And thirdly, 2^x are numbers familiar to many people, especially geeks and
+scientists.
 }
 \examples{
 \dontrun{
 if(interactive()){
- #EXAMPLE1
+ ggplot(data=diamonds, aes(price))+
+ geom_histogram(breaks=logseq(diamonds$price)) +
+ coord_trans(x=power_trans(1/2)) +
+ scale_x_continuous(breaks = function(lims) power_breaks(lims, 1/2))
  }
 }
+}
+\seealso{
+\code{\link[scales]{log_breaks}}
 }

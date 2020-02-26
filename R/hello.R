@@ -132,25 +132,38 @@ power_trans <- function(power){
 #      You could fix this with pmax(x, 0) in the trans/inverse functions above.
 
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param lims PARAM_DESCRIPTION
+#' @title Axis Breaks for power transformations
+#' @description Return vector of breaks that span the lims range
+#' evenly _after_ transformation
+#' @param lims The range for which breaks should be produced.
 #' @param power PARAM_DESCRIPTION
-#' @param n_breaks PARAM_DESCRIPTION, Default: 5
+#' @param n_breaks deprecated, does not influence the result. Stop using altogether.
 #' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @details The breaks will be numbers that are powers of 2.
+#' The base of 2 was chosen for three reasons.
+#' Firstly, the resulting breaks are sufficiently dense (example: in the
+#' \code{[1,100]}-interval, \code{2^x} produces 2, 4, 8, 16, 32 and 64,
+#' while \code{10^x} only produces 1, 10 and 100, which is often rather sparse).
+#' Secondly, for x>1 the powers of 2 are all integers (in contrast to 1.2^x, etc.).
+#' And thirdly, 2^x are numbers familiar to many people, especially geeks and
+#' scientists.
 #' @examples
 #' \dontrun{
 #' if(interactive()){
-#'  #EXAMPLE1
+#'  ggplot(data=diamonds, aes(price))+
+#'  geom_histogram(breaks=logseq(diamonds$price)) +
+#'  coord_trans(x=power_trans(1/2)) +
+#'  scale_x_continuous(breaks = function(lims) power_breaks(lims, 1/2))
 #'  }
 #' }
 #' @rdname power_breaks
+#' @seealso \code{\link[scales]{log_breaks}}
 #' @export
-power_breaks <- function(lims, power, n_breaks=100){
-  # Return vector of breaks that span the lims range evenly _after_ power transformation:
+power_breaks <- function(lims, power, n_breaks=NULL){
+  if(!is.null(n_breaks)){
+    warning("The n_breaks argument in power_breaks is deprecated and has no effect.")}
   lims[1] <- base::max(0, lims[1]) # non-integer exponents are not defined for negative values
-  x <- base::seq(lims[1]^power, lims[2]^(power), length.out = n_breaks)^(1/power)
+  x <- base::seq(lims[1]^power, lims[2]^(power), length.out = 100)^(1/power)
   # make human-readable by rounding to the closest integer power of 2. Smallest
   # and largest ticks are not strictly rounded - instead they are moved within
   # the range of values, since ggplot would not display them otherwise:
@@ -161,6 +174,8 @@ power_breaks <- function(lims, power, n_breaks=100){
   )
   return(unique(x))
 }
+
+
 
 
 #' @title FUNCTION_TITLE
@@ -217,14 +232,14 @@ semi_scientific_formatting <- function(x) {
 #' @export
 #' @importFrom ggplot2 scale_color_gradientn
 #' @importFrom rje cubeHelix
-scale_color_sqrt <- function(n_breaks=5, ...){
+scale_color_sqrt <- function(...){
   scale_color_gradientn(
     colours = rev(rje::cubeHelix(100))[5:100],
     trans = scales::trans_new(
       name = "tmp",
       trans = function(x)   x^(.5),
       inverse = function(x) x^(1/.5),
-      breaks = function(lims) power_breaks(lims, p=.5, n_breaks=n_breaks) ),
+      breaks = function(lims) power_breaks(lims, p=.5) ),
     labels = ggpower::semi_scientific_formatting,
     ...)
 }

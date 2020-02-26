@@ -3,7 +3,6 @@
 \docType{package}
 \name{ggpower}
 \alias{ggpower}
-\alias{ggpower-package}
 \title{ggpower: package for power transformations, useful e.g. in ggplot}
 \description{
 The foo package provides three categories of important functions:

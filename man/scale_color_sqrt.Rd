@@ -28,4 +28,6 @@ if(interactive()){
 \seealso{
 \code{\link[ggplot2]{scale_colour_gradient}}
  \code{\link[rje]{cubeHelix}}
+ \code{\link[ggpower]{power_breaks}}
+ \code{\link[ggpower]{semi_scientific_formatting}}
 }
