@@ -249,6 +249,22 @@ scale_color_sqrt <- function(...){
     ...)
 }
 
+#' scale_fill_sqrt
+#'
+#' @rdname scale_color_sqrt
+#' @export
+scale_fill_sqrt <- function(...) {
+  scale_fill_gradientn(
+    colours = rev(rje::cubeHelix(100))[5:100],
+    trans = scales::trans_new(
+      name = "tmp",
+      trans = function(x)   x^(.5),
+      inverse = function(x) x^(1/.5),
+      breaks = function(lims) power_breaks(lims, p=.5) ),
+    labels = ggpower::semi_scientific_formatting,
+    ...
+  )
+}
 
 
 

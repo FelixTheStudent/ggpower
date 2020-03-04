@@ -2,9 +2,12 @@
 % Please edit documentation in R/hello.R
 \name{scale_color_sqrt}
 \alias{scale_color_sqrt}
+\alias{scale_fill_sqrt}
 \title{FUNCTION_TITLE}
 \usage{
 scale_color_sqrt(...)
+
+scale_fill_sqrt(...)
 }
 \arguments{
 \item{...}{PARAM_DESCRIPTION}
