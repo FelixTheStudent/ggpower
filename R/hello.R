@@ -211,7 +211,10 @@ semi_scientific_formatting <- function(x) {
   x <- dplyr::case_when(
     x == 0 ~ as.character(0),
     base::abs(x) < .01 | base::abs(x) >= 1000 ~ scales::scientific(x,  digits = 0),
-    TRUE ~ as.character(x))}
+    TRUE ~ as.character(x))
+  # remove leading zero because it looks nicer:
+  return(gsub("^0.", ".", x))
+  }
 # if there are NAs in the vector by which you color, make sure to supply na.value.
 # Otherwise it defaults to dark grey, which looks like the high values of cubeHelix (green/black)
 
